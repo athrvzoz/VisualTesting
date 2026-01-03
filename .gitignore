@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.npm
+.pnpm-store
+
+# Angular / Web builds
+/angular-frontend/dist/
+/angular-frontend/.angular/
+/frontend/dist/
+/frontend/build/
+.angular/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Backend generated data
+/backend/public/runs/*
+/backend/public/results/*
+# Keep baselines but ignore specific runs
+!/backend/public/baselines/
+
+# API Keys / Environment
+.env
+.env.local
+.env.*.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+temp/

@@ -1,0 +1,14 @@
+{
+  "new.betway.co.za": [
+    "/",
+    "/promotions",
+    "/sports/soccer",
+    "/sport/soccer?account=my-bets",
+    "https://new.betway.co.za/?account=transaction-history",
+    "/?account=transaction-history"
+  ],
+  "betway.com.gh": [
+    "/",
+    "/sport/soccer?account=my-bets"
+  ]
+}

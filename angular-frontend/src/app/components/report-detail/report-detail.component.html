@@ -1,0 +1,283 @@
+<div class="space-y-12 animate-fade-in pb-20">
+    <!-- Breadcrumbs -->
+    <div class="flex items-center justify-between">
+        <a routerLink="/" class="nav-link bg-white shadow-sm border border-slate-100">
+            <lucide-icon name="arrow-left" [size]="18"></lucide-icon>
+            Back to Home
+        </a>
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Report Analysis</span>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="py-32 flex flex-col items-center justify-center space-y-4">
+        <lucide-icon name="loader-2" class="animate-spin text-indigo-600" [size]="48"></lucide-icon>
+        <p class="text-slate-400 font-medium">Crunching pixel data...</p>
+    </div>
+
+    <div *ngIf="!loading && !report"
+        class="bg-white p-12 rounded-3xl shadow-xl border border-red-100 text-center space-y-6">
+        <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto">
+            <lucide-icon name="x-circle" [size]="40"></lucide-icon>
+        </div>
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800">Report Not Found</h2>
+            <p class="text-slate-500 mt-2">The record might have been cleared or the ID is invalid.</p>
+        </div>
+        <a routerLink="/" class="btn-primary inline-flex">Go Home</a>
+    </div>
+
+    <ng-container *ngIf="!loading && report">
+        <!-- Hero Header -->
+        <div class="glass-card shadow-2xl overflow-hidden">
+            <div class="bg-slate-900 p-10 overflow-hidden relative">
+                <!-- Abstract Glow -->
+                <div
+                    class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2">
+                </div>
+
+                <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-400 border border-indigo-400/20">
+                                <lucide-icon name="globe" [size]="24"></lucide-icon>
+                            </div>
+                            <div>
+                                <h1 class="text-4xl font-black text-white tracking-tight">{{ report.site }}</h1>
+                                <p class="text-indigo-300 font-medium opacity-80 mt-1">{{ report.url }}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <div
+                                class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-slate-300">
+                                <lucide-icon name="clock" [size]="14" class="text-indigo-400"></lucide-icon>
+                                {{ report.timestamp | date:'MMM d, HH:mm' }}
+                            </div>
+                            <div
+                                class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-slate-300">
+                                <lucide-icon name="shield" [size]="14" class="text-emerald-400"></lucide-icon>
+                                {{ report.duration || '0s' }} analysis
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <button (click)="handleDownload()"
+                            class="btn-primary flex-1 md:flex-none py-3 shadow-none bg-indigo-500 hover:bg-indigo-400">
+                            <lucide-icon name="download" [size]="18"></lucide-icon> Export ZIP
+                        </button>
+                        <button (click)="handleDelete()"
+                            class="btn-secondary flex-1 md:flex-none py-3 border-white/10 bg-white/5 text-white hover:bg-red-500 hover:border-red-500 transition-all">
+                            <lucide-icon name="trash-2" [size]="18"></lucide-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Style Stats -->
+            <div
+                class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-100 p-1 border-t border-slate-100 bg-white">
+                <div class="p-8 text-center space-y-1">
+                    <div class="text-3xl font-black text-slate-800 tracking-tighter">{{ results.length }}</div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Target Routes</div>
+                </div>
+                <div class="p-8 text-center space-y-1 border-l md:border-l-0">
+                    <div class="text-3xl font-black text-slate-800 tracking-tighter">{{ getTotalViewports() }}</div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Active Viewports</div>
+                </div>
+                <div class="p-8 text-center space-y-1 border-t md:border-t-0">
+                    <div class="text-3xl font-black text-slate-800 tracking-tighter text-indigo-600">{{
+                        getTotalScreenshots() }}</div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Total Captures</div>
+                </div>
+                <div class="p-8 text-center space-y-1 border-t lg:border-t-0">
+                    <div class="text-3xl font-black text-slate-800 tracking-tighter">{{ getTotalComponents() }}</div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">UI Components</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Title -->
+        <div class="flex items-center gap-4">
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Pixel Analysis Results</h2>
+            <div class="flex-1 h-[2px] bg-slate-100"></div>
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]"></span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Report</span>
+            </div>
+        </div>
+
+        <!-- Results Loop -->
+        <div class="space-y-20">
+            <div *ngFor="let result of results" class="space-y-8">
+                <div
+                    class="flex flex-col md:flex-row justify-between items-start md:items-end gap-2 border-l-4 border-indigo-600 pl-6 py-2">
+                    <div class="space-y-1">
+                        <h3 class="text-2xl font-black text-slate-900 tracking-tight">{{ result.route || 'Global Scope'
+                            }}</h3>
+                        <p class="text-sm font-medium text-slate-400">Deep-scan analysis for primary route node.</p>
+                    </div>
+                    <div *ngIf="result.requiresAuth"
+                        class="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[10px] font-black tracking-widest uppercase border border-emerald-100">
+                        Authenticated Session
+                    </div>
+                </div>
+
+                <div *ngIf="result.error"
+                    class="p-6 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-4 text-red-600 font-medium animate-fade-in shadow-sm">
+                    <div class="w-10 h-10 bg-red-100/50 rounded-xl flex items-center justify-center">
+                        <lucide-icon name="x-circle" [size]="20"></lucide-icon>
+                    </div>
+                    <span>{{ result.error }}</span>
+                </div>
+
+                <!-- Viewports Grid -->
+                <div class="grid grid-cols-1 gap-12">
+                    <div *ngFor="let vpResult of result.viewports"
+                        class="premium-card p-0 overflow-hidden bg-slate-50/30">
+                        <!-- Viewport Header -->
+                        <div class="bg-white p-6 border-b border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    [class]="'w-12 h-12 rounded-2xl flex items-center justify-center transition-shadow shadow-sm ' + 
+                                  (vpResult.viewport === 'Desktop' ? 'bg-indigo-50 text-indigo-600' : 'bg-purple-50 text-purple-600')">
+                                    <lucide-icon
+                                        [name]="vpResult.viewport === 'Desktop' ? 'monitor' : (vpResult.viewport === 'Tablet' ? 'tablet' : 'smartphone')"
+                                        [size]="24"></lucide-icon>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-lg leading-tight">{{ vpResult.viewport }}
+                                    </h4>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{
+                                        vpResult.width }} × {{ vpResult.height }} Resolution</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Status
+                                </div>
+                                <div class="font-black text-lg text-emerald-500">OPTIMAL</div>
+                            </div>
+                        </div>
+
+                        <div class="p-8 space-y-12">
+                            <!-- Full Page Result -->
+                            <div *ngIf="vpResult.fullPage">
+                                <ng-container
+                                    *ngTemplateOutlet="comparisonBlock; context: { title: 'Full Page Master', data: vpResult.fullPage, isMain: true }"></ng-container>
+                            </div>
+
+                            <!-- Component Results -->
+                            <div *ngIf="vpResult.components?.length > 0" class="pt-12 border-t border-slate-200/60">
+                                <div class="flex items-center gap-3 mb-10">
+                                    <div class="w-1 h-6 bg-indigo-500 rounded-full"></div>
+                                    <h5 class="text-lg font-black text-slate-800 tracking-tight">Component Breakdown
+                                    </h5>
+                                    <span
+                                        class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 text-[10px] font-bold">{{
+                                        vpResult.components.length }}</span>
+                                </div>
+                                <div class="space-y-24">
+                                    <div *ngFor="let comp of vpResult.components">
+                                        <ng-container
+                                            *ngTemplateOutlet="comparisonBlock; context: { title: comp.name, data: comp, isMain: false }"></ng-container>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>
+
+<!-- Reusable Comparison Block Template -->
+<ng-template #comparisonBlock let-title="title" let-data="data" let-isMain="isMain">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 group">
+        <div class="space-y-1">
+            <h5
+                [class]="'font-black tracking-tight ' + (isMain ? 'text-2xl text-slate-900' : 'text-xl text-slate-700')">
+                {{ title }}
+            </h5>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ isMain ? 'Primary Site
+                Snapshot' : 'UI Module Isolation' }}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-6">
+            <div *ngIf="data.accuracy" class="text-right space-y-0.5">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Match Precision</div>
+                <div class="flex items-baseline gap-1">
+                    <span
+                        [class]="'text-2xl font-black ' + (data.accuracy > 99 ? 'text-emerald-600' : 'text-amber-600')">{{
+                        data.accuracy }}%</span>
+                </div>
+            </div>
+            <div class="w-[1px] h-8 bg-slate-200 hidden md:block"></div>
+            <div class="flex flex-col items-end gap-1.5">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Analysis Result</div>
+                <span
+                    [class]="'px-3 py-1 rounded-full text-[10px] font-black uppercase border shadow-sm ' + getStatusColor(data?.status)">
+                    {{ formatStatus(data?.status) }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Board -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <ng-container *ngTemplateOutlet="imageBox; context: { label: 'Baseline', src: data.baseline }"></ng-container>
+        <ng-container
+            *ngTemplateOutlet="imageBox; context: { label: 'Current Capture', src: data.current }"></ng-container>
+        <ng-container
+            *ngTemplateOutlet="imageBox; context: { label: 'Pixel Difference', src: data.diff, isDiff: true, status: data.status, accuracy: data.accuracy }"></ng-container>
+    </div>
+</ng-template>
+
+<!-- Reusable Image Box Template -->
+<ng-template #imageBox let-label="label" let-src="src" let-isDiff="isDiff" let-status="status" let-accuracy="accuracy">
+    <div class="space-y-4">
+        <div
+            class="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
+            <span class="flex items-center gap-1.5">
+                <div
+                    [class]="'w-1.5 h-1.5 rounded-full ' + (isDiff ? (accuracy < 100 ? 'bg-red-500' : 'bg-emerald-500') : 'bg-indigo-300')">
+                </div>
+                {{ label }}
+            </span>
+            <span *ngIf="src" class="text-indigo-500 hover:text-indigo-700 cursor-pointer transition-colors"
+                (click)="openScreenshot(src)">Full View</span>
+        </div>
+
+        <!-- Empty Baseline State -->
+        <div *ngIf="!src && isDiff && status?.includes('baseline')"
+            class="aspect-[4/3] border-2 border-dashed border-indigo-100 rounded-3xl flex flex-col items-center justify-center bg-indigo-50/30 text-indigo-400 overflow-hidden group shadow-inner">
+            <div
+                class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <lucide-icon name="image" [size]="24"></lucide-icon>
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-widest">Ground Truth Set</span>
+            <p class="text-[9px] font-medium opacity-60 mt-1">Verification not required.</p>
+        </div>
+
+        <!-- General Empty State -->
+        <div *ngIf="!src && !(isDiff && status?.includes('baseline'))"
+            class="aspect-[4/3] bg-slate-100/50 rounded-3xl flex items-center justify-center text-slate-200 shadow-inner">
+            <lucide-icon name="image" [size]="48" class="opacity-30"></lucide-icon>
+        </div>
+
+        <!-- Image Card -->
+        <div *ngIf="src"
+            class="group relative rounded-3xl overflow-hidden border border-slate-200/50 bg-slate-900 shadow-2xl transition-all duration-500 hover:shadow-indigo-500/10">
+            <img [src]="getScreenshotUrl(src)" [alt]="label"
+                class="w-full h-auto object-contain cursor-zoom-in transition-all duration-700 group-hover:scale-[1.04] opacity-90 group-hover:opacity-100"
+                (click)="openScreenshot(src)" />
+
+            <!-- Context Overlay -->
+            <div
+                class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                <div class="text-[10px] font-bold text-white uppercase tracking-widest">{{ label }} Preview</div>
+            </div>
+        </div>
+    </div>
+</ng-template>

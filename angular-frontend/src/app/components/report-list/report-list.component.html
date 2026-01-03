@@ -1,0 +1,71 @@
+<div class="space-y-8 animate-fade-in">
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-3">
+            <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+                <lucide-icon name="file-text" [size]="20"></lucide-icon>
+            </div>
+            Analysis History
+        </h2>
+        <div
+            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-100 shadow-sm text-xs font-bold text-slate-500">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            {{ reports.length }} Total Reports
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Empty State -->
+        <div *ngIf="reports.length === 0"
+            class="col-span-full py-20 premium-card flex flex-col items-center justify-center text-center space-y-4">
+            <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200">
+                <lucide-icon name="image" [size]="40"></lucide-icon>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-900">No reports yet</h3>
+                <p class="text-slate-500 text-sm">Run your first test to see analysis results here.</p>
+            </div>
+        </div>
+
+        <!-- Report Card -->
+        <div *ngFor="let report of reports" class="premium-card group">
+            <div class="p-6 space-y-6">
+                <div class="flex justify-between items-start">
+                    <div class="space-y-1">
+                        <h3
+                            class="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate max-w-[180px]">
+                            {{ report.site }}
+                        </h3>
+                        <p class="text-xs text-slate-400 font-medium truncate max-w-[180px]">{{ report.url }}</p>
+                    </div>
+                    <button (click)="handleDelete(report.id, report.site)"
+                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-600 hover:bg-red-50 transition-all">
+                        <lucide-icon name="trash-2" [size]="16"></lucide-icon>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-slate-50 rounded-xl space-y-1 border border-slate-100/50">
+                        <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Routes</div>
+                        <div class="text-sm font-bold text-slate-700">{{ report.results?.length || report.tests?.length
+                            || 0 }} tested</div>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl space-y-1 border border-slate-100/50">
+                        <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Duration</div>
+                        <div class="text-sm font-bold text-slate-700">{{ report.duration || '0s' }}</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-4 border-t border-slate-50">
+                    <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1 uppercase tracking-tight">
+                        <lucide-icon name="clock" [size]="12"></lucide-icon>
+                        {{ report.timestamp | date:'MMM d, HH:mm' }}
+                    </span>
+                    <a [routerLink]="['/report', report.id]"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                        Analysis results <lucide-icon name="external-link" [size]="12"></lucide-icon>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
