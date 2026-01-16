@@ -176,17 +176,26 @@ app.get('/api/baselines/:domain', async (req, res) => {
         } catch (e) { }
         domain = domain.replace(/[:\\/*?"<>|]/g, '_');
 
-        const baselineDir = path.join(__dirname, 'public/baselines', domain);
+        const baseBaselineDir = path.join(__dirname, 'public/baselines', domain);
 
-        if (!(await fs.pathExists(baselineDir))) {
+        if (!(await fs.pathExists(baseBaselineDir))) {
             return res.json([]);
         }
 
-        const files = await fs.readdir(baselineDir);
-        const baselines = files.filter(f => f.endsWith('.png')).map(f => ({
-            filename: f,
-            path: `baselines/${domain}/${f}`
-        }));
+        const baselines = [];
+        const states = ['logged-in', 'logged-out'];
+
+        for (const state of states) {
+            const stateDir = path.join(baseBaselineDir, state);
+            if (await fs.pathExists(stateDir)) {
+                const files = await fs.readdir(stateDir);
+                baselines.push(...files.filter(f => f.endsWith('.png')).map(f => ({
+                    filename: f,
+                    state: state,
+                    path: `baselines/${domain}/${state}/${f}`
+                })));
+            }
+        }
 
         res.json(baselines);
     } catch (error) {
@@ -196,11 +205,13 @@ app.get('/api/baselines/:domain', async (req, res) => {
 
 app.post('/api/baselines/upload', upload.single('image'), async (req, res) => {
     try {
-        let { domain, routeName, viewport } = req.body;
+        let { domain, routeName, viewport, authState } = req.body;
 
         if (!req.file || !domain || !routeName || !viewport) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
+
+        authState = authState || 'logged-out';
 
         // Sanitize domain: Extract hostname if it's a URL, and remove invalid path characters
         try {
@@ -212,7 +223,7 @@ app.post('/api/baselines/upload', upload.single('image'), async (req, res) => {
         }
         domain = domain.replace(/[:\\/*?"<>|]/g, '_');
 
-        const baselineDir = path.join(__dirname, 'public/baselines', domain);
+        const baselineDir = path.join(__dirname, 'public/baselines', domain, authState);
         await fs.ensureDir(baselineDir);
 
         const filename = `${routeName}-${viewport.toLowerCase()}-fullpage.png`;
@@ -223,7 +234,8 @@ app.post('/api/baselines/upload', upload.single('image'), async (req, res) => {
         res.json({
             success: true,
             filename,
-            path: `baselines/${domain}/${filename}`
+            authState,
+            path: `baselines/${domain}/${authState}/${filename}`
         });
     } catch (error) {
         console.error('Upload failed:', error);
@@ -231,15 +243,15 @@ app.post('/api/baselines/upload', upload.single('image'), async (req, res) => {
     }
 });
 
-app.delete('/api/baselines/:domain/:filename', async (req, res) => {
+app.delete('/api/baselines/:domain/:state/:filename', async (req, res) => {
     try {
-        let { domain, filename } = req.params;
+        let { domain, state, filename } = req.params;
         try {
             if (domain.includes('://')) domain = new URL(domain).hostname;
         } catch (e) { }
         domain = domain.replace(/[:\\/*?"<>|]/g, '_');
 
-        const filePath = path.join(__dirname, 'public/baselines', domain, filename);
+        const filePath = path.join(__dirname, 'public/baselines', domain, state, filename);
 
         if (await fs.pathExists(filePath)) {
             await fs.remove(filePath);

@@ -45,6 +45,16 @@
                         </select>
                     </div>
 
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Auth
+                            State</label>
+                        <select name="authState" [(ngModel)]="authState"
+                            class="input-premium py-2.5 text-sm bg-slate-50">
+                            <option value="logged-out">Logged Out</option>
+                            <option value="logged-in">Logged In</option>
+                        </select>
+                    </div>
+
                     <div class="space-y-3">
                         <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Image
                             File</label>
@@ -128,8 +138,8 @@
                             <div class="flex items-center gap-1.5 mt-1">
                                 <lucide-icon [name]="getViewportIcon(bl.filename)" [size]="10"
                                     class="text-indigo-400"></lucide-icon>
-                                <span
-                                    class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Verified</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{
+                                    bl.state === 'logged-in' ? 'Logged In' : 'Logged Out' }}</span>
                             </div>
                         </div>
                         <div class="flex gap-1">
@@ -141,7 +151,7 @@
                                 <lucide-icon name="refresh-cw" [size]="16"
                                     [class]="uploading ? 'animate-spin' : ''"></lucide-icon>
                             </button>
-                            <button (click)="handleDelete(bl.filename)"
+                            <button (click)="handleDelete(bl.state, bl.filename)"
                                 class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                                 title="Delete image">
                                 <lucide-icon name="trash-2" [size]="16"></lucide-icon>

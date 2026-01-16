@@ -25,7 +25,7 @@ class SimpleVisualTester {
         const currentRunDir = path.join(this.runsDir, runId);
         await fs.ensureDir(currentRunDir);
 
-        const browser = await chromium.launch({ headless: true });
+        const browser = await chromium.launch({ headless: false });
 
         try {
             const context = await browser.newContext({
@@ -97,7 +97,8 @@ class SimpleVisualTester {
                 throw new Error('Invalid URL provided');
             }
 
-            const baselineDir = path.join(this.baselinesDir, hostname);
+            const authState = authConfig.requiresAuth ? 'logged-in' : 'logged-out';
+            const baselineDir = path.join(this.baselinesDir, hostname, authState);
             const isFirstRun = !(await fs.pathExists(baselineDir));
             if (isFirstRun) {
                 await fs.ensureDir(baselineDir);
@@ -135,6 +136,7 @@ class SimpleVisualTester {
                         try {
                             // Navigate to the page first
                             await page.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+                            await page.waitForTimeout(10000);
 
                             // Restore session storage AFTER navigation if we have captured session
                             if (authConfig._capturedSession) {
@@ -153,7 +155,7 @@ class SimpleVisualTester {
                             console.warn(`Navigation warning for ${fullUrl}: ${navError.message}`);
                         }
 
-                        await page.waitForTimeout(15000); // Wait 15 seconds for complete UI stabilization
+                        await page.waitForTimeout(20000); // Wait 15 seconds for complete UI stabilization
 
                         const viewportResult = {
                             viewport: viewport.name,
@@ -278,7 +280,7 @@ class SimpleVisualTester {
             name: label,
             filename,
             status: 'unknown',
-            baseline: path.join('baselines', path.basename(baselineDir), filename),
+            baseline: path.join('baselines', path.basename(path.dirname(baselineDir)), path.basename(baselineDir), filename),
             current: path.join('runs', path.basename(currentRunDir), filename)
         };
 

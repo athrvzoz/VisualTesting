@@ -23,6 +23,7 @@ export class BaselineManagerComponent implements OnInit, OnDestroy {
     // Form state
     routeName = 'home';
     viewport = 'Desktop';
+    authState = 'logged-out';
     file: File | null = null;
 
     private domainSubject = new Subject<string>();
@@ -87,7 +88,7 @@ export class BaselineManagerComponent implements OnInit, OnDestroy {
         }
 
         this.uploading = true;
-        this.apiService.uploadBaseline(this.domain, this.routeName, this.viewport, this.file).subscribe({
+        this.apiService.uploadBaseline(this.domain, this.routeName, this.viewport, this.file, this.authState).subscribe({
             next: () => {
                 this.file = null;
                 form.reset();
@@ -103,9 +104,9 @@ export class BaselineManagerComponent implements OnInit, OnDestroy {
         });
     }
 
-    handleDelete(filename: string) {
-        if (!window.confirm('Delete this baseline?')) return;
-        this.apiService.deleteBaseline(this.domain, filename).subscribe({
+    handleDelete(state: string, filename: string) {
+        if (!window.confirm(`Delete this ${state} baseline?`)) return;
+        this.apiService.deleteBaseline(this.domain, state, filename).subscribe({
             next: () => this.loadBaselines(),
             error: (err) => alert('Delete failed')
         });
@@ -120,14 +121,17 @@ export class BaselineManagerComponent implements OnInit, OnDestroy {
         const file = event.target.files[0];
         if (!file) return;
 
-        // Extract route name and viewport from filename
-        // Format: routeName-viewport-fullpage.png
+        // Extract route name, viewport and state from filename if possible
+        // Or better yet, we can find it in our current baselines list
+        const existingBaseline = this.baselines.find(b => b.filename === filename);
+        const state = existingBaseline ? existingBaseline.state : 'logged-out';
+
         const parts = filename.replace('-fullpage.png', '').split('-');
         const viewport = parts[parts.length - 1];
         const routeName = parts.slice(0, -1).join('-');
 
         this.uploading = true;
-        this.apiService.uploadBaseline(this.domain, routeName, viewport, file).subscribe({
+        this.apiService.uploadBaseline(this.domain, routeName, viewport, file, state).subscribe({
             next: () => {
                 this.uploading = false;
                 this.loadBaselines();

@@ -9,6 +9,20 @@
   ],
   "betway.com.gh": [
     "/",
-    "/sport/soccer?account=my-bets"
+    "/sport/soccer?account=my-bets",
+    "/lobby/casino/game/kings-of-crystals-ii-power-combo-ggl-roa?vertical=casino",
+    "/lobby/casino/game/300-carat-european-roulette?vertical=casino"
+  ],
+  "betway.com.ng": [
+    "/",
+    "/lobby/casino/game/mystic-fortune-deluxe?vertical=casino"
+  ],
+  "betway.co.zm": [
+    "/",
+    "/lobby/casino/game/atlassian-williams-racing-betway?vertical=casino"
+  ],
+  "www.foxybingo.com": [
+    "/",
+    "abc"
   ]
 }

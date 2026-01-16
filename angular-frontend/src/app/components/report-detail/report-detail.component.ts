@@ -156,6 +156,17 @@ export class ReportDetailComponent implements OnInit, OnDestroy {
         }, 0) || 0;
     }
 
+    getTotalPixelsChanged(): number {
+        return this.results.reduce((acc: number, r: any) => {
+            const viewports = r?.viewports || [];
+            return acc + viewports.reduce((sum: number, vp: any) => {
+                let count = (vp?.fullPage?.diffPixels || 0);
+                count += (vp?.components || []).reduce((cSum: number, c: any) => cSum + (c?.diffPixels || 0), 0);
+                return sum + count;
+            }, 0);
+        }, 0) || 0;
+    }
+
     getStatusColor(status: string): string {
         if (!status) return 'bg-slate-100 text-slate-500 border-slate-200';
         const s = status.toLowerCase();

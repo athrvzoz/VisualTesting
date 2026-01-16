@@ -52,18 +52,19 @@ export class ApiService {
         return this.http.get(`${this.API_BASE_URL}/baselines/${domain}`);
     }
 
-    uploadBaseline(domain: string, routeName: string, viewport: string, file: File): Observable<any> {
+    uploadBaseline(domain: string, routeName: string, viewport: string, file: File, authState: string = 'logged-out'): Observable<any> {
         const formData = new FormData();
         formData.append('domain', domain);
         formData.append('routeName', routeName);
         formData.append('viewport', viewport);
+        formData.append('authState', authState);
         formData.append('image', file);
 
         return this.http.post(`${this.API_BASE_URL}/baselines/upload`, formData);
     }
 
-    deleteBaseline(domain: string, filename: string): Observable<any> {
-        return this.http.delete(`${this.API_BASE_URL}/baselines/${domain}/${filename}`);
+    deleteBaseline(domain: string, state: string, filename: string): Observable<any> {
+        return this.http.delete(`${this.API_BASE_URL}/baselines/${domain}/${state}/${filename}`);
     }
 
     getAuthConfig(domain: string): Observable<any> {

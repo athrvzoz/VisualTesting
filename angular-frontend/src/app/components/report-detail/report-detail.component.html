@@ -92,9 +92,12 @@
                         getTotalScreenshots() }}</div>
                     <div class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Total Captures</div>
                 </div>
-                <div class="p-8 text-center space-y-1 border-t lg:border-t-0">
-                    <div class="text-3xl font-black text-slate-800 tracking-tighter">{{ getTotalComponents() }}</div>
-                    <div class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">UI Components</div>
+                <div class="p-8 text-center space-y-1 border-t lg:border-t-0 bg-red-50/30">
+                    <div
+                        [class]="'text-3xl font-black tracking-tighter ' + (getTotalPixelsChanged() > 0 ? 'text-red-600' : 'text-slate-800')">
+                        {{ getTotalPixelsChanged() | number }}
+                    </div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Pixels Shifted</div>
                 </div>
             </div>
         </div>
@@ -151,7 +154,8 @@
                                     <h4 class="font-bold text-slate-900 text-lg leading-tight">{{ vpResult.viewport }}
                                     </h4>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{
-                                        vpResult.width }} × {{ vpResult.height }} Resolution</p>
+                                        vpResult.width }} × {{ vpResult.height }} Resolution {{ vpResult.viewport }}
+                                    </p>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -206,11 +210,19 @@
         </div>
         <div class="flex flex-wrap items-center gap-6">
             <div *ngIf="data.accuracy" class="text-right space-y-0.5">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Match Precision</div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Match Precision</div>
                 <div class="flex items-baseline gap-1">
                     <span
                         [class]="'text-2xl font-black ' + (data.accuracy > 99 ? 'text-emerald-600' : 'text-amber-600')">{{
                         data.accuracy }}%</span>
+                </div>
+            </div>
+            <div *ngIf="data.diffPixels !== undefined" class="text-right space-y-0.5">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Pixels Changed</div>
+                <div class="flex items-baseline gap-1">
+                    <span
+                        [class]="'text-2xl font-black ' + (data.diffPixels > 0 ? 'text-red-600' : 'text-slate-900')">{{
+                        data.diffPixels | number }}</span>
                 </div>
             </div>
             <div class="w-[1px] h-8 bg-slate-200 hidden md:block"></div>
