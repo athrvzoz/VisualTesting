@@ -24,5 +24,9 @@
   "www.foxybingo.com": [
     "/",
     "abc"
+  ],
+  "www.betway.co.za": [
+    "/",
+    "/sport/soccer?account=my-bets"
   ]
 }

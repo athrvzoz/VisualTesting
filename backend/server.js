@@ -342,6 +342,24 @@ app.delete('/api/auth/:domain', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+
+// Error handlers to catch and log issues without crashing silently
+process.on('uncaughtException', (error) => {
+    console.error('CRITICAL: Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+});
+
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Please kill the existing process.`);
+    } else {
+        console.error('Server failed to start:', error);
+    }
 });
